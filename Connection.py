@@ -4,7 +4,7 @@ import pymysql
 class MetaSingleton(type):
     _instances = {}
 
-    def __cal__(cls, *args, **kwargs):
+    def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             cls._instances[cls] = super(MetaSingleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
@@ -12,7 +12,6 @@ class MetaSingleton(type):
 
 class DataBase(metaclass=MetaSingleton):
     connection = None
-    cursor = None
 
     def connect(self):
         if self.connection is None:
@@ -22,18 +21,8 @@ class DataBase(metaclass=MetaSingleton):
         return self.cursor
 
 
-db1 = DataBase().connect()
-print(db1)
-db2 = DataBase().connect()
-db3 = DataBase().connect()
-db4 = DataBase().connect()
-print(db2)
-print(db3)
-print(db4)
-
-q = "select * from products"
-db1.execute(q)
-rows = db1.fetchall()
-print(rows)
-
-
+if __name__ == '__main__':
+    DataBase()
+    d1 = DataBase().connect()
+    d2 = DataBase().connect()
+    print(DataBase(), DataBase())

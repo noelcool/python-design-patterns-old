@@ -7,37 +7,58 @@ class MetaSingleton(type):
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             cls._instances[cls] = super(MetaSingleton, cls).__call__(*args, **kwargs)
-            print("새로운 인스턴스 생성")
+            print('새로운 인스턴스 생성')
         return cls._instances[cls]
 
 
 class DataBase(metaclass=MetaSingleton):
     def __init__(self):
-        self.connection = pymysql.connect(host='127.0.0.1', port=3306, user='root', password='123456', db='company', charset='utf8mb4')
-        self.cursor = self.connection.cursor(pymysql.cursors.DictCursor)
+        self.__host = '127.0.0.1'
+        self.__port = 3306
+        self.__user = 'root'
+        self.__password = '123456'
+        self.__db_name = 'company'
 
-    def execute(self, query, args={}):
-        self.cursor.execute(query, args)
+    @property
+    def host(self):
+        return self.__host
+
+    @host.setter
+    def host(self, value):
+        self.__host = value
+
+    @property
+    def password(self):
+        return self.__password
+
+    @password.setter
+    def password(self, value):
+        self.__password = value
+
+    def connection(self):
+        conn = pymysql.connect(host=self.__host, port=self.__port, user='root', password=self.__password,
+                               db=self.__db_name, charset='utf8mb4')
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        return cursor
+
+
+class Execute:
+    @staticmethod
+    def select(cursor, query, args={}):
+        cursor.execute(query, args)
 
 
 if __name__ == '__main__':
-    DataBase()
-    d1 = DataBase().connection
-    c1 = DataBase().cursor
-    d2 = DataBase().connection
-    c2 = DataBase().cursor
-    #print(d1, d2)
-    #print(c1, c2)
-    c2.execute("SELECT * FROM products")
+    d = DataBase()
+    d.host = 'localhost'
+    d.password = '123456'
+    print(d.host)
+    d1 = d.connection()
 
-    #result = c2.fetchall()
-    old = c2.fetchall()
-    #new = old[:]
+    execute = Execute()
+    execute.select(d1, "SELECT * FROM products")
+    
+    old = d1.fetchall()
     new = copy.deepcopy(old[:])
-
-    print("ori ", id(old), id(new))
-    print(old is new)
     new[0]['id'] = 99
-    print(old)
-    print(new)
-
+    print(old, new)

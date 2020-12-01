@@ -28,5 +28,5 @@ if __name__ == '__main__':
     d1 = Database().connect()
     print(Database())
     print(Database())
-    d1.execute("select * from products")
+    d1.execute('select * from products')
     print(d1.fetchall())
